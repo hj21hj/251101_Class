@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path to Enlightenment - 깨달음의 길</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        #game-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #path {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+        }
+        #progress {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+        #character {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            font-size: 24px;
+        }
+        #question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .option {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            width: 80%;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .option:hover {
+            background-color: #d0d0d0;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-style: italic;
+        }
+        #restart {
+            display: none;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #language-select {
+            margin: 10px auto;
+            padding: 5px;
+            font-size: 1em;
+        }
+        @media (max-width: 600px) {
+            #game-container {
+                padding: 10px;
+            }
+            .option {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1 id="title"></h1>
+        <p id="description"></p>
+        <select id="language-select">
+            <option value="ko">한국어</option>
+            <option value="en">English</option>
+        </select>
+        <div id="path">
+            <div id="progress"></div>
+            <div id="character">🌸</div>
+        </div>
+        <div id="question"></div>
+        <div id="options"></div>
+        <div id="feedback"></div>
+        <button id="restart"></button>
+    </div>
+
+    <script>
+        const content = {
+            en: {
+                title: "Path to Enlightenment",
+                description: "Answer questions about Buddhism to move toward enlightenment!",
+                restart: "Play Again",
+                questions: [
+                    {
+                        question: "What is the First Noble Truth in Buddhism?",
+                        options: [
+                            "Life is suffering",
+                            "Life is eternal",
+                            "Life is joy",
+                            "Life is illusion"
+                        ],
+                        answer: "Life is suffering",
+                        feedback: "The First Noble Truth states that suffering (dukkha) is an inherent part of life, including birth, aging, illness, and death."
+                    },
+                    {
+                        question: "What is the main goal of Buddhism?",
+                        options: [
+                            "Wealth",
+                            "Nirvana",
+                            "Fame",
+                            "Power"
+                        ],
+                        answer: "Nirvana",
+                        feedback: "Nirvana is the ultimate goal in Buddhism, representing liberation from suffering and the cycle of rebirth."
+                    },
+                    {
+                        question: "Which of these is part of the Eightfold Path?",
+                        options: [
+                            "Right Speech",
+                            "Right Wealth",
+                            "Right Fame",
+                            "Right Desire"
+                        ],
+                        answer: "Right Speech",
+                        feedback: "Right Speech is part of the Eightfold Path, encouraging truthful, kind, and meaningful communication."
+                    },
+                    {
+                        question: "What is karma in Buddhism?",
+                        options: [
+                            "A type of meditation",
+                            "The law of cause and effect",
+                            "A sacred text",
+                            "A Buddhist temple"
+                        ],
+                        answer: "The law of cause and effect",
+                        feedback: "Karma refers to the principle of cause and effect, where actions influence future outcomes."
+                    },
+                    {
+                        question: "What practice helps cultivate awareness in Buddhism?",
+                        options: [
+                            "Fasting",
+                            "Mindfulness",
+                            "Chanting",
+                            "Pilgrimage"
+                        ],
+                        answer: "Mindfulness",
+                        feedback: "Mindfulness involves being fully present and aware, a key practice in Buddhist meditation."
+                    }
+                ],
+                completion: {
+                    question: "Congratulations! You’ve reached Enlightenment!",
+                    feedback: "You’ve learned the basics of Buddhism!"
+                },
+                incorrect: "Incorrect. Try again!"
+            },
+            ko: {
+                title: "깨달음의 길",
+                description: "불교에 관한 질문에 답하여 깨달음에 도달하세요!",
+                restart: "다시 플레이",
+                questions: [
+                    {
+                        question: "불교의 첫 번째 고귀한 진리(사성제)는 무엇입니까?",
+                        options: [
+                            "삶은 고통이다",
+                            "삶은 영원하다",
+                            "삶은 기쁨이다",
+                            "삶은 환상이다"
+                        ],
+                        answer: "삶은 고통이다",
+                        feedback: "첫 번째 고귀한 진리는 삶에 고통(고, dukkha)이 본질적으로 포함되어 있으며, 출생, 노화, 질병, 죽음 등이 이에 포함된다고 설명합니다."
+                    },
+                    {
+                        question: "불교의 궁극적인 목표는 무엇입니까?",
+                        options: [
+                            "부",
+                            "열반",
+                            "명성",
+                            "권력"
+                        ],
+                        answer: "열반",
+                        feedback: "열반은 불교의 궁극적인 목표로, 고통과 재생의 순환에서 해방되는 상태를 의미합니다."
+                    },
+                    {
+                        question: "다음 중 팔정도에 포함되는 것은 무엇입니까?",
+                        options: [
+                            "바른 말",
+                            "바른 부",
+                            "바른 명성",
+                            "바른 욕망"
+                        ],
+                        answer: "바른 말",
+                        feedback: "바른 말은 팔정도의 일부로, 진실하고 친절하며 의미 있는 소통을 장려합니다."
+                    },
+                    {
+                        question: "불교에서 업(karma)이란 무엇입니까?",
+                        options: [
+                            "명상 방법",
+                            "인과법칙",
+                            "성스러운 경전",
+                            "불교 사원"
+                        ],
+                        answer: "인과법칙",
+                        feedback: "업은 인과법칙을 의미하며, 행동이 미래의 결과에 영향을 미친다고 설명합니다."
+                    },
+                    {
+                        question: "불교에서 인식을 키우는 데 도움을 주는 실천은 무엇입니까?",
+                        options: [
+                            "단식",
+                            "마음챙김",
+                            "염불",
+                            "순례"
+                        ],
+                        answer: "마음챙김",
+                        feedback: "마음챙김은 완전히 현재에 집중하고 깨어 있는 상태를 유지하는 것으로, 불교 명상의 핵심 실천입니다."
+                    }
+                ],
+                completion: {
+                    question: "축하합니다! 깨달음에 도달했습니다!",
+                    feedback: "불교의 기본을 배웠습니다!"
+                },
+                incorrect: "틀렸습니다. 다시 시도하세요!"
+            }
+        };
+
+        let currentLanguage = 'ko';
+        let currentQuestion = 0;
+        let progress = 0;
+
+        const titleElement = document.getElementById('title');
+        const descriptionElement = document.getElementById('description');
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const feedbackElement = document.getElementById('feedback');
+        const progressBar = document.getElementById('progress');
+        const character = document.getElementById('character');
+        const restartButton = document.getElementById('restart');
+        const languageSelect = document.getElementById('language-select');
+
+        function updateLanguage() {
+            currentLanguage = languageSelect.value;
+            titleElement.textContent = content[currentLanguage].title;
+            descriptionElement.textContent = content[currentLanguage].description;
+            restartButton.textContent = content[currentLanguage].restart;
+            loadQuestion();
+            if (currentQuestion >= content[currentLanguage].questions.length) {
+                questionElement.textContent = content[currentLanguage].completion.question;
+                feedbackElement.textContent = content[currentLanguage].completion.feedback;
+                optionsElement.innerHTML = '';
+                restartButton.style.display = 'block';
+            }
+        }
+
+        function loadQuestion() {
+            const q = content[currentLanguage].questions[currentQuestion];
+            questionElement.textContent = q.question;
+            optionsElement.innerHTML = '';
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option');
+                button.addEventListener('click', () => checkAnswer(option));
+                optionsElement.appendChild(button);
+            });
+            feedbackElement.textContent = '';
+        }
+
+        function checkAnswer(selected) {
+            const q = content[currentLanguage].questions[currentQuestion];
+            if (selected === q.answer) {
+                progress += 20; // 100% / 5 questions
+                progressBar.style.width = `${progress}%`;
+                character.style.left = `calc(${progress}% - 20px)`;
+                feedbackElement.textContent = q.feedback;
+                feedbackElement.style.color = 'green';
+                currentQuestion++;
+                if (currentQuestion < content[currentLanguage].questions.length) {
+                    setTimeout(loadQuestion, 1000);
+                } else {
+                    questionElement.textContent = content[currentLanguage].completion.question;
+                    optionsElement.innerHTML = '';
+                    feedbackElement.textContent = content[currentLanguage].completion.feedback;
+                    restartButton.style.display = 'block';
+                }
+            } else {
+                feedbackElement.textContent = content[currentLanguage].incorrect;
+                feedbackElement.style.color = 'red';
+            }
+        }
+
+        restartButton.addEventListener('click', () => {
+            currentQuestion = 0;
+            progress = 0;
+            progressBar.style.width = '0%';
+            character.style.left = '0';
+            restartButton.style.display = 'none';
+            loadQuestion();
+        });
+
+        languageSelect.addEventListener('change', updateLanguage);
+
+        // Initialize with default language (Korean)
+        updateLanguage();
+    </script>
+</body>
+</html>
